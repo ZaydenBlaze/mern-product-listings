@@ -18,7 +18,8 @@ app.use("/api/products", productRoutes);
 
 if (process.env.NODE_ENV === "production") {
 	app.use(express.static(path.join(__dirname, "/frontend/dist")));
-	app.get("*", (req, res) => {
+	app.get("/{*any}", (req, res) => {
+		// "*" (instead of "/{*any}") works only in development but not in production.
 		// All paths match * other than /api/products (since that path is already matched above)
 		res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
 	});
