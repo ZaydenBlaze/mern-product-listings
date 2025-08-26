@@ -2,11 +2,16 @@ import { useProductStore } from "@/store/product";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import EditProductDialog from "./EditProductDialog";
+import { type Product } from "@/lib/types";
 
-const ProductCard = (props) => {
+type ProductCardProps = {
+	product: Product;
+};
+
+const ProductCard = (props: ProductCardProps) => {
 	const { deleteProduct } = useProductStore();
 
-	async function handleDeleteProduct(pid) {
+	async function handleDeleteProduct(pid: string) {
 		const { success, message } = await deleteProduct(pid);
 		if (success) {
 			// Toaster component does not need to be in the same component where you call toast() because Toaster is globally listening for toast events.

@@ -14,10 +14,12 @@ const CreatePage = () => {
 
 	const { createProduct } = useProductStore();
 
-	async function handleSubmit(e) {
+	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 
-		const { success, message } = await createProduct(formData);
+		const formDataToSubmit = { ...formData, price: Number(formData.price) }; // Change price from String to Number before sending to the server (price is intialized as an empty string so that a new form's price field is empty)
+
+		const { success, message } = await createProduct(formDataToSubmit);
 		console.log("Success:", success);
 		console.log("Message:", message);
 
@@ -35,7 +37,7 @@ const CreatePage = () => {
 		});
 	}
 
-	function handleChange(e) {
+	function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
 		setFormData((prevFormData) => {
 			return {
 				...prevFormData,

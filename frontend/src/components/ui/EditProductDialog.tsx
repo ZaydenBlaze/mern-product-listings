@@ -15,8 +15,13 @@ import { Label } from "@/components/ui/label";
 import { SquarePen } from "lucide-react";
 import { useProductStore } from "@/store/product";
 import { toast } from "sonner";
+import { type Product } from "@/lib/types";
 
-const EditProductDialog = (props) => {
+type EditProductDialogProps = {
+	product: Product;
+};
+
+const EditProductDialog = (props: EditProductDialogProps) => {
 	const [formData, setFormData] = React.useState({
 		name: props.product.name,
 		price: props.product.price,
@@ -25,7 +30,10 @@ const EditProductDialog = (props) => {
 
 	const { updateProduct } = useProductStore();
 
-	async function handleSubmit(e, pid) {
+	async function handleSubmit(
+		e: React.FormEvent<HTMLFormElement>,
+		pid: string
+	) {
 		// update the product
 		e.preventDefault();
 		const { success } = await updateProduct(pid, formData);
@@ -36,7 +44,7 @@ const EditProductDialog = (props) => {
 		}
 	}
 
-	function handleChange(e) {
+	function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
 		setFormData((prevFormData) => ({
 			...prevFormData,
 			[e.target.name]: e.target.value,

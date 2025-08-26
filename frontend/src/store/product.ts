@@ -1,6 +1,21 @@
 import { create } from "zustand";
+import { type Product } from "@/lib/types";
 
-export const useProductStore = create((set) => ({
+type ApiResult = { success: boolean; message: string };
+
+type ProductStore = {
+	products: Product[];
+	setProducts: (products: Product[]) => void;
+	createProduct: (newProduct: Omit<Product, "_id">) => Promise<ApiResult>;
+	fetchProducts: () => Promise<void>;
+	deleteProduct: (pid: string) => Promise<ApiResult>;
+	updateProduct: (
+		pid: string,
+		updatedProduct: Omit<Product, "_id">
+	) => Promise<ApiResult>;
+};
+
+export const useProductStore = create<ProductStore>((set) => ({
 	products: [],
 	setProducts: (products) => set({ products }),
 	createProduct: async (newProduct) => {
