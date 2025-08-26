@@ -3,14 +3,53 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ProductCard from "../ui/ProductCard";
 import { useProductStore } from "@/store/product";
+import { toast } from "sonner";
+
+const dummyProducts = [
+	{
+		name: "Laptop",
+		price: 1199,
+		image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bGFwdG9wfGVufDB8fDB8fHww",
+	},
+	{
+		name: "Wireless Earphones",
+		price: 99,
+		image: "https://images.unsplash.com/photo-1655804446276-7699884b469b?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8d2lyZWxlc3MlMjBlYXJwaG9uZXN8ZW58MHx8MHx8fDA%3D",
+	},
+	{
+		name: "Tablet",
+		price: 499.99,
+		image: "https://images.unsplash.com/photo-1604399852419-f67ee7d5f2ef?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjV8fHRhYmxldHxlbnwwfHwwfHx8MA%3D%3D",
+	},
+	{
+		name: "Smart Watch",
+		price: 299,
+		image: "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8c21hcnQlMjB3YXRjaHxlbnwwfHwwfHx8MA%3D%3D",
+	},
+	{
+		name: "Phone",
+		price: 499.99,
+		image: "https://plus.unsplash.com/premium_photo-1681233751666-612c7bc77485?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bW9iaWxlJTIwcGhvbmV8ZW58MHx8MHx8fDA%3D",
+	},
+];
 
 const HomePage = () => {
-	const { fetchProducts, products } = useProductStore();
+	const { fetchProducts, createProduct, products } = useProductStore();
 
 	useEffect(() => {
 		fetchProducts();
 	}, [fetchProducts]);
 
+	async function handleClickForDummyData() {
+		try {
+			await Promise.all(
+				dummyProducts.map((product) => createProduct(product))
+			);
+			toast.success("Dummy products added.");
+		} catch (err) {
+			toast.error("Failed to add dummy products.");
+		}
+	}
 	// MongoDB automatically provides an _id for every document you insert into a collection.
 	const productCards = products.map((product) => (
 		<ProductCard key={product._id} product={product} />
@@ -27,10 +66,14 @@ const HomePage = () => {
 						{productCards}
 					</div>
 				) : (
-					<div className="flex items-center">
-						<p className="mr-4">No products found 😢</p>
+					<div className="flex flex-col items-center">
+						<p className="mb-8">No products found 😢</p>
 						<Button asChild>
 							<Link to="/create">Create a product</Link>
+						</Button>
+						<p className="mb-1">or</p>
+						<Button onClick={handleClickForDummyData}>
+							Populate with dummy products
 						</Button>
 					</div>
 				)}
