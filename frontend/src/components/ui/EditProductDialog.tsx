@@ -13,9 +13,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SquarePen } from "lucide-react";
-import { useProductStore } from "@/store/product";
 import { toast } from "sonner";
 import { type Product } from "@/lib/types";
+import { useAppDispatch } from "@/app/hooks";
+import { updateProduct } from "@/features/product/productSlice";
 
 type EditProductDialogProps = {
 	product: Product;
@@ -28,7 +29,7 @@ const EditProductDialog = (props: EditProductDialogProps) => {
 		image: props.product.image,
 	});
 
-	const { updateProduct } = useProductStore();
+	const dispatch = useAppDispatch();
 
 	async function handleSubmit(
 		e: React.FormEvent<HTMLFormElement>,
@@ -36,11 +37,26 @@ const EditProductDialog = (props: EditProductDialogProps) => {
 	) {
 		// update the product
 		e.preventDefault();
-		const { success } = await updateProduct(pid, formData);
-		if (success) {
+		if (!formData.name || !formData.price || !formData.image) {
+			return toast.warning(
+				"Product not updated. All fields must be filled in to update."
+			);
+		}
+		try {
+			await dispatch(
+				updateProduct({
+					_id: pid,
+					name: formData.name,
+					price: formData.price,
+					image: formData.image,
+				})
+			).unwrap(); // unwrap() throws error if the thunk was rejected
 			toast.success("Product updated.");
-		} else {
-			toast.warning("Product not updated.");
+		} catch (rejectedValue) {
+			const errorMessage = rejectedValue as string; // Type assertion
+			toast.error("Something went wrong", {
+				description: errorMessage,
+			});
 		}
 	}
 

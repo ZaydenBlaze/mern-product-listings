@@ -3,7 +3,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
-import { useProductStore } from "../../store/product.ts";
+// import { useProductStore } from "../../store/product.ts";
+import { useAppDispatch } from "@/app/hooks";
+import { createProduct } from "@/features/product/productSlice";
 
 const CreatePage = () => {
 	const [formData, setFormData] = React.useState({
@@ -12,22 +14,25 @@ const CreatePage = () => {
 		image: "",
 	});
 
-	const { createProduct } = useProductStore();
+	// const { createProduct } = useProductStore();
+	const dispatch = useAppDispatch();
 
 	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 
+		if (!formData.name || !formData.price || !formData.image) {
+			return toast.warning("Please fill in all fields.");
+		}
 		const formDataToSubmit = { ...formData, price: Number(formData.price) }; // Change price from String to Number before sending to the server (price is intialized as an empty string so that a new form's price field is empty)
 
-		const { success, message } = await createProduct(formDataToSubmit);
-		console.log("Success:", success);
-		console.log("Message:", message);
-
-		// Show toast
-		if (success) {
+		try {
+			await dispatch(createProduct(formDataToSubmit)).unwrap(); // unwrap() throws error if the thunk was rejected
 			toast.success("Product added.");
-		} else {
-			toast.warning("Please fill in all fields.");
+		} catch (rejectedValue) {
+			const errorMessage = rejectedValue as string; // Type assertion
+			toast.error("Something went wrong", {
+				description: errorMessage,
+			});
 		}
 
 		setFormData({

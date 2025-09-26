@@ -1,9 +1,10 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import ProductCard from "../ui/ProductCard";
-import { useProductStore } from "@/store/product";
 import { toast } from "sonner";
+import ProductCard from "../ui/ProductCard";
+import { useAppSelector, useAppDispatch } from "@/app/hooks";
+import { fetchProducts, createProduct } from "@/features/product/productSlice";
 
 const dummyProducts = [
 	{
@@ -34,20 +35,26 @@ const dummyProducts = [
 ];
 
 const HomePage = () => {
-	const { fetchProducts, createProduct, products } = useProductStore();
+	const products = useAppSelector((state) => state.products.products);
+	const dispatch = useAppDispatch();
 
 	useEffect(() => {
-		fetchProducts();
-	}, [fetchProducts]);
+		dispatch(fetchProducts());
+	}, []);
 
 	async function handleClickForDummyData() {
 		try {
 			await Promise.all(
-				dummyProducts.map((product) => createProduct(product))
+				dummyProducts.map(
+					(product) => dispatch(createProduct(product)).unwrap() // unwrap() throws error if the thunk was rejected
+				)
 			);
 			toast.success("Dummy products added.");
-		} catch (err) {
-			toast.error("Failed to add dummy products.");
+		} catch (rejectedValue) {
+			const errorMessage = rejectedValue as string; // Type assertion
+			toast.error("Something went wrong", {
+				description: errorMessage,
+			});
 		}
 	}
 	// MongoDB automatically provides an _id for every document you insert into a collection.

@@ -1,26 +1,29 @@
-import { useProductStore } from "@/store/product";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import EditProductDialog from "./EditProductDialog";
 import { type Product } from "@/lib/types";
+import { useAppDispatch } from "@/app/hooks";
+import { deleteProduct } from "@/features/product/productSlice";
 
 type ProductCardProps = {
 	product: Product;
 };
 
 const ProductCard = (props: ProductCardProps) => {
-	const { deleteProduct } = useProductStore();
+	const dispatch = useAppDispatch();
 
 	async function handleDeleteProduct(pid: string) {
-		const { success, message } = await deleteProduct(pid);
-		if (success) {
+		try {
+			await dispatch(deleteProduct(pid)).unwrap(); // unwrap() throws error if the thunk was rejected
+
 			// Toaster component does not need to be in the same component where you call toast() because Toaster is globally listening for toast events.
 			// The Toaster just needs to be rendered somewhere higher up in the component tree (or at least somewhere that remains mounted).
 			// Once it is mounted, any toast() call anywhere in the React tree can trigger it.
 			toast.success("Product deleted.");
-		} else {
-			toast.error("Product not deleted.", {
-				description: message,
+		} catch (rejectedValue) {
+			const errorMessage = rejectedValue as string; // Type assertion
+			toast.error("Something went wrong", {
+				description: errorMessage,
 			});
 		}
 	}
